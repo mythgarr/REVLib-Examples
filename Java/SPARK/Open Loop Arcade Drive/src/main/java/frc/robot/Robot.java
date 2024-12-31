@@ -11,16 +11,21 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends TimedRobot {
+  private static final double kDeadzone = 0.1;
+
   SparkMax leftLeader;
   SparkMax leftFollower;
   SparkMax rightLeader;
   SparkMax rightFollower;
   XboxController joystick;
+  PhysicsEngine physicsEngine;
 
   public Robot() {
     // Initialize the SPARKs
@@ -78,6 +83,11 @@ public class Robot extends TimedRobot {
 
     // Initialize joystick
     joystick = new XboxController(0);
+    
+    // Initialize simulation
+    if(RobotBase.isSimulation()) {
+      physicsEngine = new PhysicsEngine(this, leftLeader, rightLeader);
+    }
   }
 
   @Override
@@ -105,8 +115,8 @@ public class Robot extends TimedRobot {
      * Get forward and rotation values from the joystick. Invert the joystick's
      * Y value because its forward direction is negative.
      */
-    double forward = -joystick.getLeftY();
-    double rotation = joystick.getRightX();
+    double forward = applyDeadzone(-joystick.getLeftY());
+    double rotation = applyDeadzone(joystick.getRightX());
 
     /*
      * Apply values to left and right side. We will only need to set the leaders
@@ -114,6 +124,12 @@ public class Robot extends TimedRobot {
      */
     leftLeader.set(forward + rotation);
     rightLeader.set(forward - rotation);
+  }
+
+  private double applyDeadzone(double v) {
+    return v < -kDeadzone ? Math.max((v + kDeadzone) / (1 - 2 * kDeadzone), -1.0)
+      : v > kDeadzone ? Math.min((v - kDeadzone) / (1 - 2 * kDeadzone), 1.0)
+      : 0.0;
   }
 
   @Override
@@ -138,5 +154,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void simulationPeriodic() {
+    physicsEngine.updateSim();
   }
 }

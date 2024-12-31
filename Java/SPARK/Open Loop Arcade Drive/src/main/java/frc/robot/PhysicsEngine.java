@@ -3,9 +3,7 @@ package frc.robot;
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkMax;
 
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;

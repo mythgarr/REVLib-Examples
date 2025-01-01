@@ -58,11 +58,16 @@ public class Robot extends TimedRobot {
     // Apply the global config and set the leader SPARK for follower mode
     leftFollowerConfig
         .apply(globalConfig);
-    // leftFollowerConfig.follow(leftLeader);
 
     // Apply the global config and set the leader SPARK for follower mode
     rightFollowerConfig
         .apply(globalConfig);
+
+    // Avoid a bug in the b4 release of REV - follow during simulation prints an error
+    if(RobotBase.isReal()) {
+      leftFollowerConfig.follow(leftLeader);
+      rightFollowerConfig.follow(rightLeader);
+    }
     // rightFollowerConfig.follow(rightLeader);
 
     /*

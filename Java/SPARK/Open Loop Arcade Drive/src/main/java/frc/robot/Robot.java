@@ -57,13 +57,13 @@ public class Robot extends TimedRobot {
 
     // Apply the global config and set the leader SPARK for follower mode
     leftFollowerConfig
-        .apply(globalConfig)
-        .follow(leftLeader);
+        .apply(globalConfig);
+    // leftFollowerConfig.follow(leftLeader);
 
     // Apply the global config and set the leader SPARK for follower mode
     rightFollowerConfig
-        .apply(globalConfig)
-        .follow(rightLeader);
+        .apply(globalConfig);
+    // rightFollowerConfig.follow(rightLeader);
 
     /*
      * Apply the configuration to the SPARKs.

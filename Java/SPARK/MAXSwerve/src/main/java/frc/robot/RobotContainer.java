@@ -32,6 +32,9 @@ import java.util.List;
  * (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  public record SimAccessor(DriveSubsystem robotDrive) {
+  }
+
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
 
@@ -118,5 +121,12 @@ public class RobotContainer {
 
     // Run path following command, then stop at the end.
     return swerveControllerCommand.andThen(() -> m_robotDrive.drive(0, 0, 0, false));
+  }
+
+  /**
+   * Returns properties of this module for use by simulation.
+   */
+  public SimAccessor getSimAccessor() {
+    return new SimAccessor(m_robotDrive);
   }
 }

@@ -34,6 +34,13 @@ public final class Configs {
             turningConfig
                     .idleMode(IdleMode.kBrake)
                     .smartCurrentLimit(20);
+            // TODO: Remove when REV releases a fix for ( Bug in C++ Simulation #13)
+            // These values are only necessary when simulating, as the encoder factors are
+            // used rather than the absoluteEncoder factors. Setting these is unnecessary,
+            // but should be safe.
+            turningConfig.encoder
+                    .positionConversionFactor(turningFactor) // radians
+                    .velocityConversionFactor(turningFactor / 60.0); // radians per second
             turningConfig.absoluteEncoder
                     // Invert the turning encoder, since the output shaft rotates in the opposite
                     // direction of the steering motor in the MAXSwerve Module.

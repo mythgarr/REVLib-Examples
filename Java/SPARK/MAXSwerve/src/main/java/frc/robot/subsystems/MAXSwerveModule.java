@@ -7,6 +7,8 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.Units;
 
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
@@ -20,6 +22,9 @@ import com.revrobotics.RelativeEncoder;
 import frc.robot.Configs;
 
 public class MAXSwerveModule {
+  public record SimAccessor(SparkMax driving, SparkMax turning, Angle chassisOffset) {
+  }
+
   private final SparkMax m_drivingSpark;
   private final SparkMax m_turningSpark;
 
@@ -110,5 +115,16 @@ public class MAXSwerveModule {
   /** Zeroes all the SwerveModule encoders. */
   public void resetEncoders() {
     m_drivingEncoder.setPosition(0);
+  }
+
+  public SwerveModuleState getDesiredState() {
+    return m_desiredState;
+  }
+
+  /**
+   * Returns properties of this module for use by simulation.
+   */
+  public SimAccessor getSimAccessor() {
+    return new SimAccessor(m_drivingSpark, m_turningSpark, Units.Radians.of(m_chassisAngularOffset));
   }
 }

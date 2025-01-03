@@ -11,12 +11,18 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import frc.robot.Constants.DriveConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
+  public record SimAccessor(MAXSwerveModule[] modules, ADIS16470_IMU gyro) {
+  }
+
   // Create MAXSwerveModules
   private final MAXSwerveModule m_frontLeft = new MAXSwerveModule(
       DriveConstants.kFrontLeftDrivingCanId,
@@ -40,6 +46,16 @@ public class DriveSubsystem extends SubsystemBase {
 
   // The gyro sensor
   private final ADIS16470_IMU m_gyro = new ADIS16470_IMU();
+
+  private final StructArrayPublisher<SwerveModuleState> m_desiredStatePublisher = NetworkTableInstance.getDefault()
+      .getStructArrayTopic("Swerve/Modules/DesiredStates", SwerveModuleState.struct)
+      .publish();
+  private final StructArrayPublisher<SwerveModuleState> m_statePublisher = NetworkTableInstance.getDefault()
+      .getStructArrayTopic("Swerve/Modules/States", SwerveModuleState.struct)
+      .publish();
+  private final StructPublisher<Pose2d> m_publisher = NetworkTableInstance.getDefault()
+      .getStructTopic("Swerve/Pose", Pose2d.struct)
+      .publish();
 
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
@@ -67,6 +83,25 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearLeft.getPosition(),
             m_rearRight.getPosition()
         });
+    updateTelemetry();
+  }
+
+  private void updateTelemetry() {
+    m_publisher.set(getPose());
+
+    m_statePublisher.set(new SwerveModuleState[] {
+        m_frontLeft.getState(),
+        m_frontRight.getState(),
+        m_rearLeft.getState(),
+        m_rearRight.getState()
+    });
+
+    m_desiredStatePublisher.set(new SwerveModuleState[] {
+        m_frontLeft.getDesiredState(),
+        m_frontRight.getDesiredState(),
+        m_rearLeft.getDesiredState(),
+        m_rearRight.getDesiredState()
+    });
   }
 
   /**
@@ -176,5 +211,17 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public double getTurnRate() {
     return m_gyro.getRate(IMUAxis.kZ) * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+  }
+
+  /**
+   * Returns properties of this module for use by simulation.
+   */
+  public SimAccessor getSimAccessor() {
+    return new SimAccessor(new MAXSwerveModule[] {
+        m_frontLeft,
+        m_frontRight,
+        m_rearLeft,
+        m_rearRight
+    }, m_gyro);
   }
 }

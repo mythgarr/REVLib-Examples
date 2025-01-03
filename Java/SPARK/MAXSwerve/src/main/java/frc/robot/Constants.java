@@ -74,6 +74,13 @@ public final class Constants {
     public static final double kDrivingMotorReduction = (45.0 * 22) / (kDrivingMotorPinionTeeth * 15);
     public static final double kDriveWheelFreeSpeedRps = (kDrivingMotorFreeSpeedRps * kWheelCircumferenceMeters)
         / kDrivingMotorReduction;
+
+    // Simulation constants
+    // 5-G acceleration
+    public static final double kdrivingMotorSimSlew = 9.8 * 5;
+    // Treat the turning motor as free-spinning
+    public static final double kturningMotorSimSpeed = (NeoMotorConstants.kFreeSpeedRpm / 60) * (2 * Math.PI);
+    public static final double kturningMotorSimD = 0.0;
   }
 
   public static final class OIConstants {
